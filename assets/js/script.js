@@ -6,16 +6,43 @@ let nextId = JSON.parse(localStorage.getItem("nextId"));
 
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
+    const timeStamp = new Date().getTime();
+    const random = Math.floor(Math.random() * 10000);
+    return `${timeStamp}-${random}`;
 
 }
 
 // Todo: create a function to create a task card
-function createTaskCard(task) {
+function createTaskCard(taskList) {
+    const taskId = generateTaskId();
+    const taskCard = $('<div>').addClass('task-card draggable my-3');
+    const cardHeader = $('<div>').addClass('card-header h3').text(taskList.taskTitle);
+    const cardBody = $('<div>').addClass('card-body');
+    const cardDueDate = $('<div>').addClass('card-due-date h3').text(taskList.taskDueDate);
+    const cardDescription = $('<p>').addClass('card-description').text(taskList.taskDescription);
 
+    const cardDeleteBtn = $('<button>').addClass('btn btn-danger delete').text('Delete');
+
+    cardBody.append(taskId, cardDueDate,cardDescription,cardDeleteBtn);
+
+    taskCard.append(cardHeader, cardBody);
+    document.getElementById('todo-cards');
+    $('#todo-cards').append(taskCard);
+
+    return taskCard;
 }
 
 // Todo: create a function to render the task list and make cards draggable
 function renderTaskList() {
+    $('#todo-cards').empty();
+
+    taskList.forEach(task => {
+        const taskCard = createTaskCard(task);
+        $('#todo-cards').append(taskCard);
+    });
+    
+    // display task cards in the to do list
+    // add delete bttn
 
 }
 
@@ -40,12 +67,11 @@ function handleAddTask(event, taskList){
     event.preventDefault();
 
     const newTasks= {
+        taskId: generateTaskId(),
         taskTitle: document.getElementById('taskTitle').value,
         taskDueDate: document.getElementById('taskDueDate').value,
         taskDescription: document.getElementById('taskDescription').value
     };
-
-    console.log(document.getElementById('taskTitle').value);
 
     console.log(newTasks);
 
@@ -53,6 +79,11 @@ function handleAddTask(event, taskList){
 
     localStorage.setItem('tasks', JSON.stringify(taskList));
     alert('Task list saved');
+
+    // close modalk after adding task
+    const myModal = document.getElementById('formModal');
+    const modalInstance = bootstrap.Modal.getInstance(myModal);
+    modalInstance.hide();
     // if there is no tasks in localStorage create a new task array
     
 // add task to js array
@@ -62,9 +93,15 @@ function handleAddTask(event, taskList){
 
 // Todo: create a function to handle deleting a task
 function handleDeleteTask(event){
+    event.preventDefault();
+
+    const taskId = $(event.target).data('taskId');
+    const updatedTaskList = taskList.filter(task => task.id === taskId);
+    taskList = updatedTaskList;
+    localStorage.setItem('tasks', JSON.stringify(taskList));
+    renderTaskList();
 
 }
-
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
 
@@ -72,5 +109,5 @@ function handleDrop(event, ui) {
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
-
+    renderTaskList(taskList)
 });

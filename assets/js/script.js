@@ -21,12 +21,15 @@ function createTaskCard(taskList) {
     const cardDueDate = $('<div>').addClass('card-due-date h3').text(taskList.taskDueDate);
     const cardDescription = $('<p>').addClass('card-description').text(taskList.taskDescription);
 
-    const cardDeleteBtn = $('<button>').addClass('btn btn-danger delete').text('Delete');
+    const cardDeleteBtn = $('<button>')
+    .addClass('btn btn-danger delete')
+    .text('Delete')
+    .attr('data-card-id', taskId);
+    cardDeleteBtn.on('click', handleDeleteTask);
 
-    cardBody.append(taskId, cardDueDate,cardDescription,cardDeleteBtn);
+    cardBody.append(cardDueDate,cardDescription,cardDeleteBtn);
 
     taskCard.append(cardHeader, cardBody);
-    document.getElementById('todo-cards');
     $('#todo-cards').append(taskCard);
 
     return taskCard;
@@ -95,12 +98,26 @@ function handleAddTask(event, taskList){
 function handleDeleteTask(event){
     event.preventDefault();
 
-    const taskId = $(event.target).data('taskId');
-    const updatedTaskList = taskList.filter(task => task.id === taskId);
-    taskList = updatedTaskList;
-    localStorage.setItem('tasks', JSON.stringify(taskList));
-    renderTaskList();
+    // Assuming taskId is a string, and the task IDs in taskList are also strings.
+    const taskId = $(event.target).attr('data-card-id');
 
+    // Initialize an index to -1 outside of forEach to track if a task to be deleted is found
+    let indexToDelete = -1;
+
+    // Iterate over the taskList to find the task to delete
+    taskList.forEach((task, index) => {
+        if (task.id === taskId) {
+            indexToDelete = index; // Set the index if the task is found
+        }
+    });
+
+    // If a task was found (indexToDelete is not -1), remove it from the array
+    if (indexToDelete !== -1) {
+        taskList.splice(indexToDelete, 1);
+    }
+
+    // Re-render the task list
+    renderTaskList();
 }
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
@@ -111,3 +128,4 @@ function handleDrop(event, ui) {
 $(document).ready(function () {
     renderTaskList(taskList)
 });
+$(document).on('click', '.delete', handleDeleteTask);

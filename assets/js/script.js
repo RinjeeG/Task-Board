@@ -14,7 +14,7 @@ function generateTaskId() {
 
 // Todo: create a function to create a task card
 function createTaskCard(taskList) {
-    const taskCard = $('<div>').addClass('card task-card draggable my-3').attr('data-task-id', taskList.id);
+    const taskCard = $('<div>').addClass('card task-card draggable my-3').attr('data-task-id', taskList.taskId);
     const cardHeader = $('<div>').addClass('card-header h3').text(taskList.taskTitle);
     const cardBody = $('<div>').addClass('card-body');
     const cardDueDate = $('<div>').addClass('card-due-date h3').text(taskList.taskDueDate);
@@ -66,22 +66,21 @@ function renderTaskList() {
             doneCards.append(createTaskCard(tasks));
         }
     }
-        // ? Use JQuery UI to make task cards draggable
     $('.draggable').draggable({
         opacity: 0.7,
         zIndex: 100,
         // ? This is the function that creates the clone of the card that is dragged. This is purely visual and does not affect the data.
         helper: function (e) {
-        // ? Check if the target of the drag event is the card itself or a child element. If it is the card itself, clone it, otherwise find the parent card  that is draggable and clone that.
-        const original = $(e.target).hasClass('ui-draggable')
+          // ? Check if the target of the drag event is the card itself or a child element. If it is the card itself, clone it, otherwise find the parent card  that is draggable and clone that.
+          const original = $(e.target).hasClass('ui-draggable')
             ? $(e.target)
             : $(e.target).closest('.ui-draggable');
-        // ? Return the clone with the width set to the width of the original card. This is so the clone does not take up the entire width of the lane. This is to also fix a visual bug where the card shrinks as it's dragged to the right.
-        return original.clone().css({
+          // ? Return the clone with the width set to the width of the original card. This is so the clone does not take up the entire width of the lane. This is to also fix a visual bug where the card shrinks as it's dragged to the right.
+          return original.clone().css({
             width: original.outerWidth(),
-        });
+          });
         },
-    });
+      });
 }    
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -145,20 +144,26 @@ function handleDeleteTask(event) {
 
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
-    const tasks = taskList;
+      // ? Read projects from localStorage
+  const tasks = taskList;
 
-    const taskIdEl = ui.draggable[0].dataset.taskId;
+  // ? Get the project id from the event
+  const statusId = ui.draggable[0].dataset.status;
 
-    const newStatus = event.target.id;
+  // ? Get the id of the lane that the card was dropped into
+  const newStatus = event.target.id;
 
-    for (let task of tasks) {
-        if (task.id === taskIdEl){
-            task.status = newStatus;
-        }
+  for (let task of taskList) {
+    // ? Find the project card by the `id` and update the project status.
+    if (task.status === statusId) {
+      task.status = newStatus;
     }
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    renderTaskList();
+  }
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  renderTaskList();
 }
+
+
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
     renderTaskList(taskList)

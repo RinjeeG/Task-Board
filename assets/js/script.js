@@ -14,11 +14,12 @@ function generateTaskId() {
 
 // Todo: create a function to create a task card
 function createTaskCard(taskList) {
-    const taskCard = $('<div>').addClass('card task-card draggable my-3').attr('data-task-id', taskList.taskId);
+    const taskCard = $('<div>').addClass('card task-card draggable my-3').attr('data-status', taskList.status);
     const cardHeader = $('<div>').addClass('card-header h3').text(taskList.taskTitle);
     const cardBody = $('<div>').addClass('card-body');
     const cardDueDate = $('<div>').addClass('card-due-date h3').text(taskList.taskDueDate);
     const cardDescription = $('<p>').addClass('card-description').text(taskList.taskDescription);
+    let cardStatus
 
     const cardDeleteBtn = $('<button>')
     .addClass('btn btn-danger delete')
@@ -180,3 +181,5 @@ $(document).ready(function () {
 
 
 $(document).on('click', '.delete', handleDeleteTask);
+
+// going to extract the task id from the ui.draggable element,then find the corresponding task object in the task list array using array.find,once you have the task object ,you update its status property to the new status .thereaftere update the local storage with the updated task list and re render the task list on the page 
